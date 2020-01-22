@@ -37,15 +37,13 @@ public class Graph {
 	}
 	
 	public int E() {
-		for (int i = 0; i < this.v; i ++) {
-			E += adj[i].size();
-		}
 		return E;
 	}
 	
 	public void addEdge(int v, int w) {
 		adj[v].add(w);
 		adj[w].add(v);
+		this.E ++;
 	}
 	
 	public Iterable<Integer> adj(int v){
