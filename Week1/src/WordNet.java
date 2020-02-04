@@ -81,7 +81,6 @@ public class WordNet {
 	}
 	
 	private void calculate(String nounA, String nounB) {
-		if (nounA == null || nounB == null) throw new IllegalArgumentException();
 		ArrayList<Integer> wordsA = synsets.get(nounA);
 		ArrayList<Integer> wordsB = synsets.get(nounB);
 		int ancestorID;
@@ -93,6 +92,7 @@ public class WordNet {
 	// do unit testing of this class
 	public static void main(String[] args) {
 		WordNet wn = new WordNet(args[0], args[1]);
+		System.out.println(wn.synsets.get("horse"));
 		System.out.println("1");
 //		System.out.println(wn.nouns());
 		System.out.println(wn.isNoun("fuck"));
