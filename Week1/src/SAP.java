@@ -71,6 +71,7 @@ public class SAP {
 	}
 	
 	private boolean containNULL(Iterable<Integer> v) {
+		if (v == null) return false;
 		for (Integer x : v) {
 			if (x == null) return true;
 		}

@@ -1,0 +1,2 @@
+29,AB type_AB group_AB,the blood group whose red cells carry both the A and B antigens
+1621,Bachelor_of_Arts BA Artium_Baccalaurens AB,a bachelor's degree in arts and sciences
