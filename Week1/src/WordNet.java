@@ -1,28 +1,32 @@
-import java.io.File;
 import java.util.ArrayList;
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.SeparateChainingHashST;
 
 public class WordNet {
 	
-//	private final int root;
 	private SeparateChainingHashST<String, ArrayList<Integer>> synsets;
 	private Digraph hypernyms;
-	private ArrayList<String> words;// for the convinience of finding the word when knowing the id in sap()
+	private ArrayList<String> words; // for the convinience of finding the word when knowing the id in sap()
 	private int distance;
 	private String ancestor;
 	private SAP sap;
+	private String A;
+	private String B;
 	
 	// constructor takes the name of the two input files
 	public WordNet(String synsets, String hypernyms) {
 		if (synsets == null || hypernyms == null) throw new IllegalArgumentException();
-		this.words = new ArrayList<String>();
 		this.synsets = new SeparateChainingHashST<String, ArrayList<Integer>>();
-		File synsetsFile = new File(synsets);
-		In synsetsIn = new In(synsetsFile);
+		this.words = new ArrayList<String>();
+		ancestor = null;
+		A = null;
+		B = null;
+		
+		In synsetsIn = new In(synsets);
 		int countOfSyn = 0;
-		while(!synsetsIn.isEmpty()) {
+		while (!synsetsIn.isEmpty()) {
 			String[] line = synsetsIn.readLine().split(",");
 			String[] words = line[1].split(" ");
 			this.words.add(line[1]);
@@ -36,8 +40,7 @@ public class WordNet {
 			}
 			countOfSyn ++;
 		}
-		File hypernymsFile = new File(hypernyms);
-		In hypernymsIn = new In(hypernymsFile);
+		In hypernymsIn = new In(hypernyms);
 		this.hypernyms = new Digraph(countOfSyn);
 		while(!hypernymsIn.isEmpty()) {
 			String[] line = hypernymsIn.readLine().split(",");
@@ -45,13 +48,22 @@ public class WordNet {
 				this.hypernyms.addEdge(Integer.parseInt(line[0]), Integer.parseInt(line[i]));
 			}
 		}
+		// check not rooted DAG
+		int count = 0; 
+        for (int v = 0; v < this.hypernyms.V(); v++) {
+            if (this.hypernyms.indegree(v) != 0 && this.hypernyms.outdegree(v) == 0) count++;
+        }
+        if (count > 1) throw new IllegalArgumentException("Not single root!");
+        // check for cycle
+        DirectedCycle dc = new DirectedCycle(this.hypernyms);
+        if (dc.hasCycle()) throw new IllegalArgumentException("cycle!"); 
 		sap = new SAP(this.hypernyms);
 	}
 	
 	// returns all WordNet nouns
 	public Iterable<String> nouns() {
 		ArrayList<String> nouns = new ArrayList<String>();
-		for(String key : synsets.keys()) {
+		for (String key : synsets.keys()) {
 			nouns.add(key);
 		}
 		return nouns;
@@ -67,7 +79,10 @@ public class WordNet {
 	public int distance(String nounA, String nounB) {
 		if (nounA == null || nounB == null) throw new IllegalArgumentException();
 		if (this.synsets.get(nounA) == null || this.synsets.get(nounB) == null) throw new IllegalArgumentException("Not an exsit pair");
-		calculate(nounA, nounB);
+		if (nounA.equals(A) && nounB.equals(B)) return this.distance;
+		ArrayList<Integer> wordsA = synsets.get(nounA);
+        ArrayList<Integer> wordsB = synsets.get(nounB);
+        distance = sap.length(wordsA, wordsB);
 		return this.distance;
 	}
 	
@@ -76,32 +91,24 @@ public class WordNet {
 	public String sap(String nounA, String nounB) {
 		if (nounA == null || nounB == null) throw new IllegalArgumentException();
 		if (this.synsets.get(nounA) == null || this.synsets.get(nounB) == null) throw new IllegalArgumentException("Not an exsit pair");
-		calculate(nounA, nounB);
-		return this.ancestor;
-	}
-	
-	private void calculate(String nounA, String nounB) {
+		if (nounA.equals(A) && nounB.equals(B)) return this.ancestor;
 		ArrayList<Integer> wordsA = synsets.get(nounA);
-		ArrayList<Integer> wordsB = synsets.get(nounB);
-		int ancestorID;
-		distance = sap.length(wordsA, wordsB);
-		ancestorID = sap.ancestor(wordsA, wordsB);
-		ancestor = this.words.get(ancestorID);
+        ArrayList<Integer> wordsB = synsets.get(nounB);
+        int ancestorID = sap.ancestor(wordsA, wordsB);
+        ancestor = this.words.get(ancestorID);
+		return this.ancestor;
 	}
 	
 	// do unit testing of this class
 	public static void main(String[] args) {
 		WordNet wn = new WordNet(args[0], args[1]);
+		System.out.println(wn.sap("worm", "bird"));
+		System.out.println(wn.distance("Brown_Swiss", "barrel_roll"));
 		System.out.println(wn.synsets.get("horse"));
 		System.out.println("1");
-//		System.out.println(wn.nouns());
 		System.out.println(wn.isNoun("fuck"));
 		int count = 0;
-//		for(String xString : wn.nouns()) {
-//			count++;
-//		}
 		System.out.println(count);
 		System.out.println(wn.synsets.get("word"));
-		System.out.println(wn.distance("401-K", "money"));
 	}
 }

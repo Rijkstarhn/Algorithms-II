@@ -1,4 +1,3 @@
-import java.io.File;
 import java.util.ArrayList;
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
@@ -14,14 +13,13 @@ public class SAP {
 	public SAP(Digraph G) {
 		if (G == null) throw new IllegalArgumentException();
 		this.g = new Digraph(G);
-		ancestor = -2;
-		length = -2;
+		ancestor = -1;
+		length = -1;
 	}
 	
 	// length of shortest ancestral path between v and w; -1 if no such path
 	public int length(int v, int w) {
 		if (v >= this.g.V() || w >= this.g.V()) throw new IllegalArgumentException();
-		if (this.length != -2) return this.length;
 		calculateSingle(v, w);
 		if (this.length == Integer.MAX_VALUE) return -1;
 		return this.length;
@@ -30,7 +28,6 @@ public class SAP {
 	// a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
 	public int ancestor(int v, int w) {
 		if (v > this.g.V() || w > this.g.V()) throw new IllegalArgumentException();
-		if (this.ancestor != -2) return this.ancestor;
 		calculateSingle(v, w);
 		if (this.length == Integer.MAX_VALUE) return -1;
 		return this.ancestor;
@@ -55,7 +52,6 @@ public class SAP {
 	// length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
 	public int length(Iterable<Integer> v, Iterable<Integer> w) {
 		if (containNULL(v) || containNULL(w)) throw new IllegalArgumentException();
-//		if (this.length != -2) return this.length;
 		calculateSet(v, w);
 		if (this.length == Integer.MAX_VALUE) return -1;
 		return this.length;
@@ -64,7 +60,6 @@ public class SAP {
 	// a common ancestor that participates in shortest ancestral path; -1 if no such path
 	public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
 		if (containNULL(v) || containNULL(w)) throw new IllegalArgumentException();
-//		if (this.ancestor != -2) return this.ancestor;
 		calculateSet(v, w);
 		if (this.length == Integer.MAX_VALUE) return -1;
 		return this.ancestor;
@@ -95,8 +90,7 @@ public class SAP {
 	}
 	
 	public static void main(String[] args) {
-		File file = new File(args[0]);
-		In in = new In(file);
+		In in = new In(args[0]);
 		Digraph g = new Digraph(in);
 //		BreadthFirstDirectedPaths bfdp = new BreadthFirstDirectedPaths(g, 1);
 //		System.out.println(bfdp.hasPathTo(6));
@@ -109,10 +103,11 @@ public class SAP {
 //		System.out.println(sap.ancestor(v,u));
 		ArrayList<Integer> v = new ArrayList<Integer>();
 //		v.add(12); v.add(9);
-		v.add(1);
+		v.add(4);
 		ArrayList<Integer> u = new ArrayList<Integer>();
-		u.add(6); 
+		u.add(4); 
 //		u.add(7); u.add(3);
+		System.out.println(sap.length(v, u));
 		System.out.println(sap.length(v, u));
 		System.out.println(sap.ancestor(v, u));
 	}
