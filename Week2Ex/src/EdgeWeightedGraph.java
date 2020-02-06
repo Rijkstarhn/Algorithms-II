@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.In;
 
@@ -28,6 +30,21 @@ public class EdgeWeightedGraph {
         return adj[v];
     }
     
+    public Iterable<Edge> edges() {
+//        Bag<Edge> edgeBag = new Bag<Edge>();
+        ArrayList<Edge> ae = new ArrayList<Edge>();
+        for (Bag<Edge> b : adj) {
+            for(Edge e : b) {
+                if (!ae.contains(e)) ae.add(e);
+            }
+        }
+        return ae;
+    }
+    
+    public int V() {
+        return V;
+    }
+    
     public static void main(String[] args) {
         Edge e1 = new Edge(0, 2, 0.5);
         int either = e1.either();
@@ -39,6 +56,10 @@ public class EdgeWeightedGraph {
         eg.addEdge(e1);
         eg.addEdge(e2);
         for (Edge edge : eg.adj(2)) {
+            System.out.println(edge.either() + "->" + edge.other(edge.either()));
+        }
+        System.out.println("All edges in graph:");
+        for (Edge edge : eg.edges()) {
             System.out.println(edge.either() + "->" + edge.other(edge.either()));
         }
     }
