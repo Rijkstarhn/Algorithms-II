@@ -9,7 +9,19 @@ public class EdgeWeightedGraph {
     private Bag<Edge>[] adj;
     
     public EdgeWeightedGraph(In in) {
-        
+        V = in.readInt();
+        E = in.readInt();
+        adj = (Bag<Edge>[]) new Bag[V];
+        for (int i = 0; i < V; i++) {
+            adj[i] = new Bag<Edge>();
+        }
+        while(!in.isEmpty()) {
+            int v = in.readInt(), w = in.readInt();
+            double weight = in.readDouble();
+            Edge e = new Edge(v, w, weight);
+            adj[v].add(e);
+            adj[w].add(e);
+        }
     }
     
     public EdgeWeightedGraph(int v) {
