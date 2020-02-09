@@ -26,6 +26,16 @@ public class Edge implements Comparable<Edge> {
         else return 0;
     }
     
+    public double weight() {
+        return weight;
+    }
+    
+    @Override
+    public String toString() {
+        String s = Integer.toString(v) + "->" + Integer.toString(w);
+        return s;
+    }
+    
     public static void main(String[] args) {
         
     }
