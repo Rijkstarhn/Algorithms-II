@@ -40,6 +40,10 @@ public class DijkstarSP {
         return s;
     }
     
+    public double dist(int d) {
+        return distTo[d];
+    }
+    
     private void relax(DirectedEdge e) {
         int v = e.from(), w = e.to();
         if (distTo[w] > distTo[v] + e.weight()) {
@@ -57,5 +61,6 @@ public class DijkstarSP {
         for(DirectedEdge e : dsp.path(1)) {
             System.out.println(e.toString());
         }
+        System.out.println("distance:" + dsp.dist(1));
     }
 }
