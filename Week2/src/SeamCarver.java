@@ -9,7 +9,7 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class SeamCarver {
  
-//    private Picture pic;
+    private Picture pic;
     private Color[][] color;
     private int width, height;
 //    private double[][] energy;
@@ -38,10 +38,16 @@ public class SeamCarver {
     }
  
     // current picture
-//    public Picture picture() {
-//        if (!vh.isEmpty()) trimPic();
-//        return pic;
-//    }
+    public Picture picture() {
+        Picture p = new Picture(width, height);
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                p.set(col, row, color[row][col]);
+            }
+        }
+        pic = p;
+        return pic;
+    }
     
 //    private void trimPic() {
 //        while(!vh.isEmpty()) {
@@ -89,6 +95,8 @@ public class SeamCarver {
         double minEnergy = Double.POSITIVE_INFINITY;
         double[][] energy = energy();
         for (int i = 0; i < width; i ++) {
+            double[] distTo = new double[height];
+            int[][] edgeTo = new int[height][2];
             int[] pos = {0, i};// record the position of the vertex, pos[0] is row and pos[1] is col
             double sumEnergy = 0.0;
             while (pos[0] < height - 1) {
@@ -182,6 +190,10 @@ public class SeamCarver {
  
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        if (seam == null) throw new IllegalArgumentException();
+        if (seam.length != height) throw new IllegalArgumentException();
+        if (invalidSeam(seam, false)) throw new IllegalArgumentException();
+        if (width <= 1) throw new IllegalArgumentException();
         Color[][] removeColor = new Color[height][width-1];
         for(int i = 0; i < seam.length; i++) {
              System.arraycopy(color[i], 0, removeColor[i], 0, seam[i]);
@@ -203,6 +215,10 @@ public class SeamCarver {
 //    
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam == null) throw new IllegalArgumentException();
+        if (seam.length != width) throw new IllegalArgumentException();
+        if (invalidSeam(seam, true)) throw new IllegalArgumentException();
+        if (height <= 1) throw new IllegalArgumentException();
         transpose();
         removeVerticalSeam(seam);
         transpose();
@@ -213,11 +229,28 @@ public class SeamCarver {
 //        vh.enqueue(true);
     }
     
+    // vertical is false, horizontal is true
+    private boolean invalidSeam(int[] seam, boolean vh) {
+        if (vh) {
+            for (int i = 0; i < seam.length; i++) {
+                if (seam[i] < 0 || seam[i] >= height) return true;
+                if (i < seam.length-1 && Math.abs(seam[i+1] - seam[i]) > 1) return true;
+            }
+        }
+        else {
+            for (int i = 0; i < seam.length; i++) {
+                if (seam[i] < 0 || seam[i] >= width) return true;
+                if (i < seam.length-1 && Math.abs(seam[i+1] - seam[i]) > 1) return true;
+            }
+        }
+        return false;
+    }
+    
     public static void main(String[] args) {
         Picture picture = new Picture(args[0]);
         SeamCarver sc = new SeamCarver(picture);
         double[][] energy = sc.energy();
-//        int[] seam = (sc.findVerticalSeam());
+        int[] seam = (sc.findVerticalSeam());
 //        sc.transpose();
         
 //        System.out.println(sc.findHorizontalSeam());
@@ -230,8 +263,8 @@ public class SeamCarver {
 //        ArrayList<Double>[] tt = sc.transpose(t);
         
 //        sc.removeVerticalSeam(seam);
-        int[] seam = (sc.findHorizontalSeam());
-        sc.removeHorizontalSeam(seam);
+//        int[] seam = (sc.findHorizontalSeam());
+//        sc.removeHorizontalSeam(seam);
 //        sc.energy();
 //        sc.removeHorizontalSeam(sc.findHorizontalSeam());
         System.out.println();
