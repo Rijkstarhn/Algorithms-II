@@ -1,11 +1,4 @@
-//import java.awt.Color;
-//import java.lang.Math;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-
 import edu.princeton.cs.algs4.Picture;
-//import edu.princeton.cs.algs4.Queue;
-//import edu.princeton.cs.algs4.StdOut;
 
 public class SeamCarver {
  
@@ -15,7 +8,10 @@ public class SeamCarver {
     private int width, height;
     // record the last calculation direction, can save many transposes
     // false is vertical, true is horizontal
-    private boolean horizontal; 
+    private boolean horizontal;
+    //record the state that the removeHorizontal() is called, for knowing the purpose of calling energy(x, y)
+    private boolean verticalFindCalled;
+    private boolean horizontalFindCalled;
     
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
@@ -24,6 +20,8 @@ public class SeamCarver {
         width = picture.width();
         height = picture.height();
         horizontal = false;
+        verticalFindCalled = false;
+        horizontalFindCalled = false;
         RGB = new int[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -34,34 +32,46 @@ public class SeamCarver {
  
     // current picture
     public Picture picture() {
+        if (horizontal) {
+            transpose();
+            horizontal = false;
+        }
         Picture p = new Picture(width, height);
-        if (horizontal) transpose();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 p.setRGB(col, row, RGB[row][col]);
             }
         }
-//        for (int col = 0; col < width; col++) {
-//            for (int row = 0; row < height; row++) {
-//                p.setRGB(col, row, RGB[row][col]);
-//            }
-//        }
         pic = p;
         return pic;
     }
     
     // width of current picture
     public int width() {
+        if (horizontal) {
+            transpose();
+            horizontal = false;
+        }
         return width;
     }
     
     // height of current picture
     public int height() {
+        if (horizontal) {
+            transpose();
+            horizontal = false;
+        }
         return height;
     }
     
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
+        if (!verticalFindCalled && !horizontalFindCalled) {
+            if (horizontal) {
+                transpose();
+                horizontal = false;
+            }
+        }
         if (x < 0 || x >= width || y < 0 || y >= height) throw new IllegalArgumentException("position out of range");
         if (x == 0 || x == width-1 || y == 0 || y == height-1) return BORDER;
         double Rx, Bx, Gx, Ry, By, Gy;
@@ -97,17 +107,25 @@ public class SeamCarver {
     
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
-        if (horizontal) transpose();
+        verticalFindCalled = true;
+        if (horizontal) {
+            transpose();
+            horizontal = false;
+        }
         int[] seam = findSeam();
-        horizontal = false;
+        verticalFindCalled = false;
         return seam;
     }
     
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        if(!horizontal) transpose();
+        horizontalFindCalled = true;
+        if(!horizontal) {
+            transpose();
+            horizontal = true;
+        }
         int[] seam = findSeam();
-        horizontal = true;
+        horizontalFindCalled = false;
         return seam;
     }
     
@@ -184,18 +202,24 @@ public class SeamCarver {
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
         if (seam == null) throw new IllegalArgumentException("Input shouldn't be null");
-        if (seam.length != width && seam.length != height) throw new IllegalArgumentException("Seam's length is incorrect");
+        if (horizontal) {
+            transpose();
+            horizontal = false;
+        }
+        if (seam.length != height) throw new IllegalArgumentException("Seam's length is incorrect");
         if (invalidSeam(seam)) throw new IllegalArgumentException("Invalid seam");
-        if (width <= 1) throw new IllegalArgumentException("width <= 1");
         removeSeam(seam);
     }
     
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
         if (seam == null) throw new IllegalArgumentException("Input shouldn't be null");
-        if (seam.length != width && seam.length != height) throw new IllegalArgumentException("Seam's length is incorrect");
+        if (!horizontal) {
+            transpose();
+            horizontal = true;
+        }
+        if (seam.length != height) throw new IllegalArgumentException("Seam's length is incorrect");
         if (invalidSeam(seam)) throw new IllegalArgumentException("Invalid seam");
-        if (height <= 1) throw new IllegalArgumentException("height <= 1");
         removeSeam(seam);
     }
     
@@ -209,22 +233,15 @@ public class SeamCarver {
         RGB = removeRGB;
         height = RGB.length;
         width = RGB[0].length;
+        if (height <= 0 || width <=0) throw new IllegalArgumentException(" ");
     }
     
     // vertical is false, horizontal is true
     private boolean invalidSeam(int[] seam) {
-        if (horizontal) {
-            for (int i = 1; i < seam.length; i++) {
-//                System.out.println("seampos:" + i);
-                if (seam[i] < 0 || seam[i] >= width) return true;
-                if (Math.abs(seam[i-1] - seam[i]) > 1) return true;
-            }
-        }
-        else {
-            for (int i = 1; i < seam.length; i++) {
-                if (seam[i] < 0 || seam[i] >= width) return true;
-                if (Math.abs(seam[i-1] - seam[i]) > 1) return true;
-            }
+        if (seam[0] < 0 || seam[0] >= width) return true;
+        for (int i = 1; i < seam.length; i++) {
+            if (seam[i] < 0 || seam[i] >= width) return true;
+            if (Math.abs(seam[i-1] - seam[i]) > 1) return true;
         }
         return false;
     }
@@ -233,15 +250,24 @@ public class SeamCarver {
         Picture picture = new Picture(args[0]);
         SeamCarver sc = new SeamCarver(picture);
         double[][] energy = sc.energy();
+        sc.height();
+        sc.height();
+        sc.energy();
+        System.out.println(sc.energy(1, 2));
         int[] seam;
+//        int[] seam = {-1, 0, 0, 1, 1, 2, 3, 4, 5, 5, 6, 6};
+//        int[] seam = {2,3,2,3,2};
+//        int[] seam = {1,2,1,2,1,0};
 //        seam = sc.findVerticalSeam();
         seam = sc.findHorizontalSeam();
+        sc.width();
+        sc.findHorizontalSeam();
 //        sc.removeVerticalSeam(seam);
 //        seam = sc.findHorizontalSeam();
-        sc.removeHorizontalSeam(seam);
+//        sc.removeHorizontalSeam(seam);
 //        Picture p = sc.picture();
 //        sc.removeVerticalSeam(seam);
-        
+        System.out.println(sc.energy(1, 2));
 //        sc.transpose();
         
 //        System.out.println(sc.findHorizontalSeam());
