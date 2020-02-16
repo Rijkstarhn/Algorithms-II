@@ -24,7 +24,11 @@ public class FlowNetwork {
         adj[w].add(e);
     }
     
-    Iterable<FlowEdge> adj(int v) {
+    public Iterable<FlowEdge> adj(int v) {
         return adj[v];
+    }
+    
+    public int V() {
+        return V;
     }
 }
