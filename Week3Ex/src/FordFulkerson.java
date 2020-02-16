@@ -32,7 +32,7 @@ public class FordFulkerson {
             int v = queue.dequeue();
             for (FlowEdge e : G.adj(v)) {
                 int w = e.other(v);
-                if (e.residualCapacityTo(w) > 0 && marked[w]) {
+                if (e.residualCapacityTo(w) > 0 && !marked[w]) {
                     edgeTo[w] = e;
                     marked[w] = true;
                     queue.enqueue(w);
