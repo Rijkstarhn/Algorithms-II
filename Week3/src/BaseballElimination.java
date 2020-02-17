@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-
 import edu.princeton.cs.algs4.FlowEdge;
 import edu.princeton.cs.algs4.FlowNetwork;
 import edu.princeton.cs.algs4.FordFulkerson;
@@ -13,20 +12,12 @@ public class BaseballElimination {
     private final int numberOfTeams;
     private SeparateChainingHashST<String, Team> teamTable;
     private Queue<String> certificate;
-//    private int[] wins, loses, remainings;
-//    private ArrayList<String> teams;
-//    private int[][] games;
  
     // create a baseball division from given filename in format specified below
     public BaseballElimination(String filename) {
         In in = new In(filename);
         numberOfTeams = in.readInt();
         teamTable = new SeparateChainingHashST<String, BaseballElimination.Team>();
-//        wins = new int[numberOfTeams];
-//        loses = new int[numberOfTeams];
-//        remainings = new int[numberOfTeams];
-//        teams = new ArrayList<String>();
-//        games = new int[numberOfTeams][numberOfTeams];
         for (int i = 0; i < numberOfTeams; i++) {
             Team t = new Team();
             t.vsTeams = new int[numberOfTeams];
@@ -35,10 +26,6 @@ public class BaseballElimination {
             for (int j = 0; j < numberOfTeams; j++) {
                 t.vsTeams[j] = in.readInt();
             }
-//            teams.add(in.readString());
-//            wins[i] = in.readInt();
-//            loses[i] = in.readInt();
-//            remainings[i] = in.readInt();
         }
     }
     
