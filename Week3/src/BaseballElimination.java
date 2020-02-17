@@ -65,7 +65,7 @@ public class BaseballElimination {
     }
  
     // number of losses for given team
-    public int loses(String team) {
+    public int losses(String team) {
         if (teamTable.get(team) == null) throw new IllegalArgumentException();
         return teamTable.get(team).lose;
     }
