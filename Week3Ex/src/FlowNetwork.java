@@ -31,4 +31,10 @@ public class FlowNetwork {
     public int V() {
         return V;
     }
+    
+    public static void main(String[] args) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("cdsadsadasdasdasdadadadadasdad");
+        
+    }
 }
