@@ -24,6 +24,8 @@ public class LSD {
     
     public static void main(String[] args) {
         String[] a = {"dab","add","cab","fad","fee","bad","dad","bee","fed","bed","ebb","ace"};
+        char ax = 97;
+        int d = a[0].charAt(2);
         sort(a, 3);
     }
 }
