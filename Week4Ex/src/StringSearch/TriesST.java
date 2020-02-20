@@ -1,5 +1,7 @@
 package StringSearch;
 
+import edu.princeton.cs.algs4.Queue;
+
 public class TriesST<Value> {
     
     private static int R = 256;
@@ -42,6 +44,40 @@ public class TriesST<Value> {
         return get(x.next[c], key, d+1);
     }
     
+    public Iterable<String> keys() {
+        Queue<String> queue = new Queue<String>();
+        collect(root, "", queue);
+        return queue;
+    }
+    
+    private void collect(Node x, String prefix, Queue<String> queue) {
+        if (x == null) return;
+        if (x.value != null) queue.enqueue(prefix);
+        for (char c = 0; c < R; c++) {
+            collect(x.next[c], prefix+c, queue);
+        }
+    }
+    
+    public Iterable<String> keysWithPrefix(String prefix) {
+        Queue<String> queue = new Queue<String>();
+        Node x = get(root, prefix, 0);
+        collect(x, prefix, queue);
+        return queue;
+    }
+    
+    public String longestPrefixOf(String query) {
+        int length = search(root, query, 0, 0);
+        return query.substring(0, length);
+    }
+    
+    private int search(Node x, String query, int d, int length) {
+        if (x == null) return length;
+        if (x.value != null) length = d;
+        if (d == query.length()) return length;
+        char c = query.charAt(d);
+        return search(x.next[c], query, d+1, length);
+    }
+    
     public static void main(String[] args) {
         String[] input = {"sea", "shell", "sells", "the", "shore"};
         TriesST<Integer> tst = new TriesST<Integer>();
@@ -52,5 +88,12 @@ public class TriesST<Value> {
         }
         System.out.println(tst.contains("sells"));
         System.out.println(tst.get("sea"));
+        for (String string : tst.keys()) {
+            System.out.println(string);
+        }
+        for (String string : tst.keysWithPrefix("sh")) {
+            System.out.println(string);
+        }
+        System.out.println(tst.longestPrefixOf("sellsman"));
     }
 }
