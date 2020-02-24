@@ -1,80 +1,275 @@
 import java.util.ArrayList;
 
+//import BoggleSolver.Tries26;
+//import BoggleSolver.Tries26.Node;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.SeparateChainingHashST;
 import edu.princeton.cs.algs4.StdOut;
+//import edu.princeton.cs.algs4.TST;
 
 public class BoggleSolver {
     
-    private int score;
-    private Queue<String> allWords;
+    private class Tries26<Value> {
+        private static final int R = 26;        // UPPER CASE A-Z
+
+        private Node root;      // root of trie
+        private int n;          // number of keys in trie
+        
+        // R-way trie node
+        private class Node {
+            private Object val;
+            private Node[] next = new Tries26.Node[R];
+        }
+
+       /**
+         * Initializes an empty string symbol table.
+         */
+        public Tries26() {
+        }
+        
+        /**
+         * Returns the value associated with the given key.
+         * @param key the key
+         * @return the value associated with the given key if the key is in the symbol table
+         *     and {@code null} if the key is not in the symbol table
+         * @throws IllegalArgumentException if {@code key} is {@code null}
+         */
+        public Value get(String key) {
+            if (key == null) throw new IllegalArgumentException("argument to get() is null");
+            Node x = get(root, key, 0);
+            if (x == null) return null;
+            return (Value) x.val;
+        }
+
+        /**
+         * Does this symbol table contain the given key?
+         * @param key the key
+         * @return {@code true} if this symbol table contains {@code key} and
+         *     {@code false} otherwise
+         * @throws IllegalArgumentException if {@code key} is {@code null}
+         */
+        public boolean contains(String key) {
+            if (key == null) throw new IllegalArgumentException("argument to contains() is null");
+            return get(key) != null;
+        }
+
+        private Node get(Node x, String key, int d) {
+            if (x == null) return null;
+            if (d == key.length()) return x;
+            char c = key.charAt(d);
+            return get(x.next[c - 65], key, d+1);
+        }
+        
+        /**
+         * Inserts the key-value pair into the symbol table, overwriting the old value
+         * with the new value if the key is already in the symbol table.
+         * If the value is {@code null}, this effectively deletes the key from the symbol table.
+         * @param key the key
+         * @param val the value
+         * @throws IllegalArgumentException if {@code key} is {@code null}
+         */
+        public void put(String key, Value val) {
+            if (key == null) throw new IllegalArgumentException("first argument to put() is null");
+            if (val == null) delete(key);
+            else root = put(root, key, val, 0);
+        }
+
+        private Node put(Node x, String key, Value val, int d) {
+            if (x == null) x = new Node();
+            if (d == key.length()) {
+                if (x.val == null) n++;
+                x.val = val;
+                return x;
+            }
+            char c = key.charAt(d);
+            x.next[c - 65] = put(x.next[c - 65], key, val, d+1);
+            return x;
+        }
+        
+        /**
+         * Removes the key from the set if the key is present.
+         * @param key the key
+         * @throws IllegalArgumentException if {@code key} is {@code null}
+         */
+        public void delete(String key) {
+            if (key == null) throw new IllegalArgumentException("argument to delete() is null");
+            root = delete(root, key, 0);
+        }
+
+        private Node delete(Node x, String key, int d) {
+            if (x == null) return null;
+            if (d == key.length()) {
+                if (x.val != null) n--;
+                x.val = null;
+            }
+            else {
+                char c = key.charAt(d);
+                x.next[c - 65] = delete(x.next[c - 65], key, d+1);
+            }
+
+            // remove subtrie rooted at x if it is completely empty
+            if (x.val != null) return x;
+            for (int c = 0; c < R; c++)
+                if (x.next[c] != null)
+                    return x;
+            return null;
+        }
+        
+        /**
+         * Returns all of the keys in the set that start with {@code prefix}.
+         * @param prefix the prefix
+         * @return all of the keys in the set that start with {@code prefix},
+         *     as an iterable
+         */
+        public Iterable<String> keysWithPrefix(String prefix) {
+            Queue<String> results = new Queue<String>();
+            Node x = get(root, prefix, 0);
+            collect(x, new StringBuilder(prefix), results);
+            return results;
+        }
+
+        private void collect(Node x, StringBuilder prefix, Queue<String> results) {
+            if (x == null) return;
+            if (x.val != null) results.enqueue(prefix.toString());
+            for (char c = 65; c < 65 + R; c++) {
+                prefix.append(c);
+                collect(x.next[c-65], prefix, results);
+                prefix.deleteCharAt(prefix.length() - 1);
+            }
+        }
+    }
+    
+//    private int score;
+    private int rowSize;
+    private int colSize;
+    private SeparateChainingHashST<String, Integer> allWords;
+//    private TST<Integer> dicTST = new TST<Integer>();
+    private Tries26<Integer> dicTST = new Tries26<Integer>();
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
-        
+        int i = 0;
+        for (String s : dictionary) {
+            dicTST.put(s, i++);
+        }
     }
     
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        allWords = new Queue<String>();
-        int boardSize = board.cols() * board.rows();
-        for (int i = 0; i < boardSize - 1; i++) {
-            int row = i / board.cols(), col = i % board.cols();
+        allWords = new SeparateChainingHashST<String, Integer>();
+        rowSize = board.rows(); colSize = board.cols();
+        int boardSize = colSize * rowSize;
+        for (int i = 0; i < boardSize; i++) {
+            int row = i / colSize, col = i % colSize;
             boolean[] marked = new boolean[boardSize];
-            String[] pattern = new String[20];
-            getValidWords(row, col, board.rows(), board.cols(), marked);
+            ArrayList<Character> word = new ArrayList<Character>();
+            marked[row * colSize + col] = true;
+            char c = board.getLetter(row, col);
+            if (c != 'Q') word.add(c);
+            else { word.add('Q'); word.add('U');}
+            getValidWords(board, row, col, marked, word);
         }
-        return allWords;
+        return allWords.keys();
     }
     
-    private void getValidWords(int row, int col, int rowSize, int colSize, boolean[] marked) {
+    private void getValidWords(BoggleBoard board, int row, int col, boolean[] marked, ArrayList<Character> word) {
         for (int i = row - 1; i <= row + 1; i++) {
             if (i < 0 || i >= rowSize) continue;
             for (int j = col - 1; j <= col + 1; j++) {
                 if (j < 0 || j >= colSize) continue;
-                if (i == row && j == col) continue;
+                if (marked[i * colSize + j]) continue;
                 else {
                     // Process the valid words
-                    
+                    char c = board.getLetter(i, j);
+                    if (c != 'Q') word.add(c);
+                    else { word.add('Q'); word.add('U');}
+                    String wordString = wordToString(word);
+                    marked[i * colSize + j] = true;
                     // If the sub-string can be found in the dictionary, then continue getting valid word
                     // If cannot, give up this way
-                    
+                    Queue<String> queue  = (Queue<String>)this.dicTST.keysWithPrefix(wordString);
+                    if (!queue.isEmpty()) {
+                        if (dicTST.contains(wordString) && !allWords.contains(wordString)) {
+                            int wordLength = wordString.length();
+                            if (wordLength < 3) ;
+                            else if (wordLength >= 3 && wordLength <= 4) allWords.put(wordString, 1);
+                            else if (wordLength == 5) allWords.put(wordString, 2);
+                            else if (wordLength == 6) allWords.put(wordString, 3);
+                            else if (wordLength == 7) allWords.put(wordString, 5);
+                            else allWords.put(wordString, 11);
+                            
+                        }
+                        getValidWords(board, i, j, marked, word);
+                    }
+                    else {
+                        if (word.size() >= 2 && word.get(word.size()-1) == 'U' && word.get(word.size()-2) == 'Q') {
+                            marked[i * colSize + j] = false;
+                            word.remove(word.size()-1);
+                            word.remove(word.size()-1);
+                        }
+                        else {
+                            marked[i * colSize + j] = false;
+                            word.remove(word.size()-1);
+                        }
+                        continue;
+                    }
                 }
             }
         }
+        if (word.size() >= 2 && word.get(word.size()-1) == 'U' && word.get(word.size()-2) == 'Q') {
+            marked[row * colSize + col] = false;
+            word.remove(word.size()-1);
+            word.remove(word.size()-1);
+        }
+        else {
+            marked[row * colSize + col] = false;
+            word.remove(word.size()-1);
+        }
+        return;
     }
     
-    private Iterable<Integer> adj(int row, int col, int rowSize, int colSize) {
-        ArrayList<Integer> adj = new ArrayList<Integer>();
-        for (int i = row - 1; i <= row + 1; i++) {
-            if (i < 0 || i >= rowSize) continue;
-            for (int j = col - 1; j <= col + 1; j++) {
-                if (j < 0 || j >= colSize) continue;
-                if (i != row && j != col) adj.add(i * colSize + j);
-            }
+    private String wordToString(ArrayList<Character> word) {
+        StringBuilder stringWord = new StringBuilder();
+        for (char c : word) {
+            stringWord.append(c);
         }
-        return adj;
+        return stringWord.toString();
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word) {
-        return score;
+        if (allWords == null && dicTST.contains(word)) {
+            if (word.length() < 3) return 0;
+            else if (word.length() >= 3 && word.length() <= 4) return 1;
+            else if (word.length() == 5) return 2;
+            else if (word.length() == 6) return 3;
+            else if (word.length() == 7) return 5;
+            else return 11;
+        }
+        else if (allWords == null) return 0;
+        return allWords.get(word);
     }
     
     public static void main(String[] args) {
         In in = new In(args[0]);
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
+        System.out.println(solver.scoreOf("PIGS"));
         BoggleBoard board = new BoggleBoard(args[1]);
         solver.getAllValidWords(board);
         
         int score = 0;
+//        Out out = new Out("result777.txt");
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
+            if (!solver.dicTST.contains(word)) System.out.println(false);
+//            out.println(word);
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
+//        out.close();
     }
 
 }
