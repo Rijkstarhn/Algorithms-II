@@ -1,5 +1,2 @@
-4 4
-S  N  C  N  
-S  A  Y  R  
-H  X  E  P  
-L  V  O  W
+1 10
+O  A  R  E  R  T  B  S  R  A
