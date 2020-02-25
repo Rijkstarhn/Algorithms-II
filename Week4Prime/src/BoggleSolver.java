@@ -83,44 +83,12 @@ public class BoggleSolver {
             x.next[c] = put(x.next[c], key, val, d+1);
             return x;
         }
-        
-//        /**
-//         * Removes the key from the set if the key is present.
-//         * @param key the key
-//         * @throws IllegalArgumentException if {@code key} is {@code null}
-//         */
-//        public void delete(String key) {
-//            if (key == null) throw new IllegalArgumentException("argument to delete() is null");
-//            root = delete(root, key, 0);
-//        }
-//
-//        private Node delete(Node x, String key, int d) {
-//            if (x == null) return null;
-//            if (d == key.length()) {
-//                if (x.val != null) n--;
-//                x.val = null;
-//            }
-//            else {
-//                char c = key.charAt(d);
-//                x.next[c - 65] = delete(x.next[c - 65], key, d+1);
-//            }
-//
-//            // remove subtrie rooted at x if it is completely empty
-//            if (x.val != null) return x;
-//            for (int c = 0; c < R; c++)
-//                if (x.next[c] != null)
-//                    return x;
-//            return null;
-//        }
     }
     
-//    private int score;
     private int countCall;
     private int rowSize;
     private int colSize;
-//    private RedBlackBST<String, Character> allWords;
     private SeparateChainingHashST<String, Integer> allWords;
-//    private Queue<String> allWords;
     private Tries26<Integer> dicTST = new Tries26<Integer>();
     private String[] dictionaryCopy;
     private Bag<Integer>[] adj;
@@ -143,9 +111,7 @@ public class BoggleSolver {
     
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-//        allWords = new RedBlackBST<String, Character>();
         allWords = new SeparateChainingHashST<String, Integer>();
-//        allWords = new Queue<String>();
         rowSize = board.rows(); colSize = board.cols();
         int boardSize = colSize * rowSize;
         // Create a array form of board to cut down the time consuming
@@ -180,7 +146,6 @@ public class BoggleSolver {
             }
             getValidWords(board, i, marked, word, current);
         }
-//        return allWords.keys();
         return allWords.keys();
     }
     
@@ -248,13 +213,7 @@ public class BoggleSolver {
         In in = new In(args[0]);
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
-//        solver.dicTST.put("PIA", 1);
-//        System.out.println(solver.dicTST.keysWithPrefix("PI"));
         System.out.println(solver.dicTST.contains("PG"));
-//        Queue<String> s = (Queue<String>)solver.dicTST.keysWithPrefix("PI");
-//        for (String s : solver.dicTST.keysWithPrefix("PI")) {
-//            System.out.println(s);
-//        }
         System.out.println(solver.scoreOf("OQUS"));
         BoggleBoard board = new BoggleBoard(args[1]);
         solver.getAllValidWords(board);
