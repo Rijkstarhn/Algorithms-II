@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.MinPQ;
 
 public class Huffman {
     
-    private final static char R = 'Z';
+    private final static int R = 256;
 //    private BinaryStdOut compression;
     
     public Huffman(int[] freq) {
