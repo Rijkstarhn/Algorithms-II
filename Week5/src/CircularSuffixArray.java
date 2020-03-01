@@ -15,7 +15,6 @@ public class CircularSuffixArray {
     private class QuickThree {
         
         public void sort(CircularSuffix[] a) {
-//            StdRandom.shuffle(a);
             sort(a, 0, a.length-1, 0);
         }
         
@@ -49,45 +48,11 @@ public class CircularSuffixArray {
         
         // return the dth character of s, -1 if d = length of s
         private int charAt(CircularSuffix cs, int d) { 
-//            assert d >= 0 && d <= s.length();
             int length = cs.original.length();
             if (d == length) return -1;
             return cs.original.charAt((d+cs.pointer)%length);
         }
     }
-//    private class ManberMayer {
-//        
-//        public void manberMayer(String[] a) {
-//            // Phase 0: Key-indexed Sort
-//            a = keyIndexedSort(a);
-//            // Phase i: Index Sort
-//            
-//        }
-//        
-//        private String[] keyIndexedSort(String[] a) {
-//            int n = a.length;
-//            int R = 256;   // extend ASCII alphabet size
-//            String[] aux = new String[n];
-////            int[] index = new int[n];
-//            for (int i = 0; i < n; i++) {
-//                index[i] = i;
-//            }
-//            // compute frequency counts
-//            int[] count = new int[R+1];
-//            for (int i = 0; i < n; i++)
-//                count[a[i].charAt(0) + 1]++;
-//            // compute cumulates
-//            for (int r = 0; r < R; r++)
-//                count[r+1] += count[r];
-//            // move data
-//            for (int i = 0; i < n; i++) {
-//                index[count[a[i].charAt(0)]] = i;
-//                aux[count[a[i].charAt(0)]++] = a[i];
-//            }
-//            return aux;
-//        }
-//    }
-    
     
     // circular suffix array of s
     public CircularSuffixArray(String s) {
@@ -99,19 +64,8 @@ public class CircularSuffixArray {
             circularSuffixArray[i] = new CircularSuffix(i);
         }
         // sort the array
-//        ManberMayer mm = new ManberMayer();
-//        mm.manberMayer(suffixArray);// How about a Manber-Mayer Sort?
         QuickThree qt = new QuickThree();
         qt.sort(circularSuffixArray);
-    }
-    
-    private String circularSuffix(String s, int index) {
-        StringBuilder sb = new StringBuilder();
-        String begin = s.substring(index);
-        String end = s.substring(0, index);
-        sb.append(begin);
-        sb.append(end);
-        return sb.toString();
     }
     
     // length of s
