@@ -1,3 +1,5 @@
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
 
 public class BurrowsWheeler {
     
@@ -9,10 +11,10 @@ public class BurrowsWheeler {
     // apply Burrows-Wheeler transform,
     // reading from standard input and writing to standard output 
     public static void transform() {
-//        String s = BinaryStdIn.readString();
-//        CircularSuffixArray csa = new CircularSuffixArray(BinaryStdIn.readString());
-        String s = "ABRACADABRA!";
-        CircularSuffixArray csa = new CircularSuffixArray(s);
+        String s = BinaryStdIn.readString();
+        CircularSuffixArray csa = new CircularSuffixArray(BinaryStdIn.readString());
+//        String s = "ABRACADABRA!";
+//        CircularSuffixArray csa = new CircularSuffixArray(s);
         int length = csa.length();
         t = new char[length];
         for (int i = 0; i < length; i++) {
@@ -21,19 +23,22 @@ public class BurrowsWheeler {
             if (pos == 0) {
                 first = i;
                 t[i] = s.charAt(length-1);
-//                BinaryStdOut.write;
+                BinaryStdOut.write(first);
             }
         }
-//        System.out.println("endOfTrans");
+        for (int i = 0; i < length; i++) {
+            BinaryStdOut.write(t[i]);
+        }
+        BinaryStdOut.close();
     }
     
     // apply Burrows-Wheeler inverse transform,
     // reading from standard input and writing to standard output
     public static void inverseTransform() {
-//        first = BinaryStdIn.readInt();
-//        String input = BinaryStdIn.readString();
+        first = BinaryStdIn.readInt();
+        String input = BinaryStdIn.readString();
         first = 3;
-        String input = "ARD!RCAAAABB";
+//        String input = "ARD!RCAAAABB";
         int length = input.length();
 //        for (int i = 0; i < length; i++) {
 //            t[i] = input.charAt(i);
@@ -61,6 +66,8 @@ public class BurrowsWheeler {
             first = next[first];
         }
         String original = sb.toString();
+        BinaryStdOut.write(original);
+        BinaryStdOut.close();
     }
     
     // if args[0] is "-", apply Burrows-Wheeler transform
